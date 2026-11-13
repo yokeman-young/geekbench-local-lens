@@ -69,9 +69,13 @@ def _workloads(node: dict) -> list[dict]:
                 rate = _pick(item, RATE_KEYS) or ""
                 runtime = next((item[x] for x in item
                                 if _norm(x) == "runtime" and _is_number(item[x])), None)
+                threads = next((item[x] for x in item
+                                if _norm(x) == "threads" and _is_number(item[x])), None)
+                runs = next((item[x] for x in item
+                             if _norm(x) == "runtimes" and isinstance(item[x], list)), None)
                 if name:
                     out.append({"name": name, "score": score, "rate": str(rate),
-                                "runtime": runtime})
+                                "runtime": runtime, "threads": threads, "runs": runs})
             if out:
                 return out
     return []
@@ -83,6 +87,7 @@ class Report:
     multi: dict = field(default_factory=dict)
     info: dict = field(default_factory=dict)
     metrics: dict = field(default_factory=dict)
+    details: dict = field(default_factory=dict)
 
     @property
     def empty(self) -> bool:
@@ -149,7 +154,24 @@ def parse_document(root: dict) -> Report:
     report.multi = groups.get("multi", {})
     report.info = _sysinfo(root)
     report.metrics = collect_metrics(root)
+    report.details = collect_details(root)
     return report
+
+
+def collect_details(root: dict) -> dict:
+    """Run options, frequency samples and run metadata (for the folded section)."""
+    out: dict = {"options": {}, "meta": {}, "frequencies": []}
+    if not isinstance(root, dict):
+        return out
+    if isinstance(root.get("options"), dict):
+        out["options"] = root["options"]
+    for key in ("version", "build", "date", "valid", "complete_benchmark", "branch"):
+        if root.get(key) is not None:
+            out["meta"][key] = root[key]
+    frequency = root.get("processor_frequency")
+    if isinstance(frequency, dict):
+        out["frequencies"] = [f for f in frequency.get("frequencies", []) if _is_number(f)]
+    return out
 
 
 def collect_metrics(root: dict) -> dict:
@@ -268,10 +290,78 @@ td.rate{text-align:right;width:150px;color:var(--muted);font-size:13px;white-spa
 .sysinfo td:first-child{color:var(--muted);width:38%}
 .sysinfo td:last-child{text-align:right}
 footer{margin-top:40px;color:var(--muted);font-size:12px}
+:root{--card:#fafafa;--card-hover:#f2f2f7}
+@media (prefers-color-scheme:dark){:root{--card:#242426;--card-hover:#2c2c2e}}
+details.tech{margin-top:44px;border-top:1px solid var(--line);padding-top:20px}
+details.tech summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:14px 16px;border:1px solid var(--line);border-radius:12px;background:var(--card);color:var(--fg);font-size:14px;font-weight:600;transition:background .15s ease,border-color .15s ease}
+details.tech summary::-webkit-details-marker{display:none}
+details.tech summary::before{content:"▸";color:var(--muted);font-size:11px;transition:transform .2s ease}
+details.tech[open] summary::before{transform:rotate(90deg)}
+details.tech summary:hover{background:var(--card-hover);border-color:var(--muted)}
+details.tech summary .hint{margin-left:auto;font-weight:400;font-size:12px;color:var(--muted)}
+details.tech[open] summary{margin-bottom:8px}
+details.tech h3{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.07em;margin:28px 0 10px}
+svg.spark{display:block;width:100%;height:96px;border:1px solid var(--line);border-radius:10px;background:var(--bar-bg);background-image:linear-gradient(var(--line) 1px,transparent 1px);background-size:100% 24px}
+svg.spark polyline{fill:none;stroke:var(--bar);stroke-width:1.5;vector-effect:non-scaling-stroke;stroke-linejoin:round;stroke-linecap:round}
+table.timing{font-size:13px}
+table.timing th{text-align:left;font-weight:500;color:var(--muted);padding:0 0 6px;border-bottom:1px solid var(--line);font-size:12px}
+table.timing td{padding:7px 0;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums;width:36%}
+table.timing tr.grp td{padding-top:18px;border-bottom:none;color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+table.timing td.num{width:80px}
+td.iter{color:var(--muted);font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
 """
 
 LABELS = {"model": "Model", "cpu": "Processor", "cores": "Topology",
           "memory": "Memory", "os": "Operating System", "version": "Geekbench"}
+
+
+def _details_block(report: Report, groups: list) -> str:
+    esc = htmllib.escape
+    details = report.details or {}
+    parts = ['<details class="tech"><summary>Technical details · engineering data'
+             '<span class="hint">click to expand</span></summary>']
+    rows = list((details.get("meta") or {}).items()) + list((details.get("options") or {}).items())
+    if rows:
+        parts.append('<h3>Run</h3><table class="sysinfo">')
+        for key, value in rows:
+            parts.append(f'<tr><td>{esc(str(key))}</td><td>{esc(str(value))}</td></tr>')
+        parts.append('</table>')
+
+    freqs = details.get("frequencies") or []
+    if freqs:
+        lo, hi = min(freqs), max(freqs)
+        avg = sum(freqs) / len(freqs)
+        parts.append(f'<h3>CPU frequency · n={len(freqs)} · min {lo} / avg {avg:.0f} / max {hi} MHz</h3>')
+        width, height = 760, 90
+        span = (hi - lo) or 1
+        step = width / max(1, len(freqs) - 1)
+        points = " ".join(
+            f"{i * step:.1f},{height - (value - lo) / span * (height - 8) - 4:.1f}"
+            for i, value in enumerate(freqs))
+        parts.append(f'<svg class="spark" viewBox="0 0 {width} {height}" preserveAspectRatio="none">'
+                     f'<polyline points="{points}"/></svg>')
+
+    timing = []
+    for kind in ("single", "multi"):
+        group = next((g for g in groups if g == kind), None)
+        section = getattr(report, kind, None)
+        if not section:
+            continue
+        timing.append(f'<tr class="grp"><td colspan="4">{esc(section["name"])} · {fmt(section["score"])}</td></tr>')
+        for workload in section["workloads"]:
+            runtime = workload.get("runtime")
+            runs = workload.get("runs") or []
+            timing.append(
+                f'<tr><td>{esc(workload["name"])}</td>'
+                f'<td class="num">{workload.get("threads") or ""}</td>'
+                f'<td class="num">{f"{runtime * 1000:.0f} ms" if runtime else ""}</td>'
+                f'<td class="iter">{esc(" · ".join(f"{r * 1000:.0f}" for r in runs))}</td></tr>')
+    if timing:
+        parts.append('<h3>Per-workload timing (ms)</h3>'
+                     '<table class="timing"><tr><th>Workload</th><th>Threads</th>'
+                     '<th>Runtime</th><th>Iterations</th></tr>' + "".join(timing) + '</table>')
+    parts.append('</details>')
+    return "\n".join(parts)
 
 
 def to_html(report: Report, title: str) -> str:
@@ -324,6 +414,7 @@ def to_html(report: Report, title: str) -> str:
             )
         parts.append("</table>")
 
+    parts.append(_details_block(report, groups))
     parts.append("<footer>Rendered locally by geekbench-local-lens · never uploaded</footer></div></body></html>")
     return "\n".join(parts)
 
