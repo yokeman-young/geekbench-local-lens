@@ -123,6 +123,23 @@ assert, and the failure modes worth retrying versus surfacing.
   (7.1.0). On a new release `gblens patch` fails loudly (exit 2) instead of
   producing a broken binary.
 
+## Cross-platform
+
+Unix-first: macOS is verified end to end, Linux CLI builds are expected to work
+unchanged (same byte patterns, no code signing). Windows is welcome as a
+contribution — the renderer and server already run there; only the patch
+verification is missing.
+
+The layering is deliberate so a port is small: `render.py` and `server.py` are
+pure Python, `patch.py` is byte-level and format-agnostic (Mach-O / ELF / PE),
+and the only OS-specific step is signing (`codesign` on macOS, no-op elsewhere).
+
+- `gblens scan <binary>` tells you whether a build is patchable before you touch it
+- see [docs/platforms.md](docs/platforms.md) for the status matrix
+- see [docs/extending.md](docs/extending.md) and
+  [docs/agent-extension-prompt.md](docs/agent-extension-prompt.md) to add a
+  platform with an agent
+
 ## Development
 
 ```bash

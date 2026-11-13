@@ -112,6 +112,21 @@ gblens serve --results ./results --json    # 打印 {"listening":...} 后常驻
 - scheme 补丁依赖当前版本（7.1.0）的指令序列。新版本上 `gblens patch` 会明确失败
   （exit 2），而不是产出一个坏二进制。
 
+## 跨平台
+
+**Unix 优先**：macOS 已端到端验证；Linux 的 CLI 版本预期无需改代码即可适用
+（同样的字节模式，且不需要代码签名）。Windows 欢迎作为社区贡献——渲染器和服务端
+本来就能跑，缺的只是补丁验证。
+
+分层是刻意的，让移植工作足够小：`render.py` 与 `server.py` 是纯 Python；
+`patch.py` 做字节级操作，格式无关（Mach-O / ELF / PE）；唯一与系统相关的是签名
+（macOS 用 `codesign`，其他平台空操作）。
+
+- `gblens scan <binary>` 先判断一个构建能不能打补丁，再动手
+- 状态矩阵见 [docs/platforms.md](docs/platforms.md)
+- 想用 agent 加一个平台：看 [docs/extending.md](docs/extending.md) 和
+  [docs/agent-extension-prompt.md](docs/agent-extension-prompt.md)
+
 ## 开发
 
 ```bash
