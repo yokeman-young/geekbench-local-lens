@@ -35,6 +35,14 @@ class RenderTests(unittest.TestCase):
         self.assertIn("Score", table)
         self.assertIn("Multi-Core", table) if False else self.assertIn("MULTI", table)
 
+    def test_rate_string_matches_browser_format(self):
+        from gblens import render as r
+        self.assertEqual(r.rate_string("File Compression", 456520938.3), "456.5 MB/sec")
+        self.assertEqual(r.rate_string("Navigation", 22.48), "22.5 routes/sec")
+        self.assertEqual(r.rate_string("Clang", 21960.25), "22.0 Klines/sec")
+        self.assertEqual(r.rate_string("Photo Library", 3.88), "3.88 images/sec")
+        self.assertEqual(r.rate_string("Video Player", 163.0), "163.0 FPS")
+
     def test_unknown_schema_is_empty(self):
         report = render.parse_document({"foo": [1, 2, 3]})
         self.assertTrue(report.empty)

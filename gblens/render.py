@@ -36,6 +36,25 @@ def _walk(node: Any, path: tuple[str, ...] = ()):
             yield from _walk(value, path + (str(index),))
 
 
+WORKLOAD_UNITS = {
+    "File Compression": ("MB/sec", 1e6),
+    "Navigation": ("routes/sec", 1),
+    "HTML5 Browser": ("pages/sec", 1),
+    "PDF Viewer": ("Mpixels/sec", 1e6),
+    "Photo Library": ("images/sec", 1),
+    "Clang": ("Klines/sec", 1e3),
+    "Text Processing": ("pages/sec", 1),
+    "Asset Compression": ("MB/sec", 1e6),
+    "HDR": ("Mpixels/sec", 1e6),
+    "Photo Editor": ("images/sec", 1),
+    "Ray Tracer": ("Ksamples/sec", 1e3),
+    "Structure from Motion": ("Kpixels/sec", 1e3),
+    "Game Physics": ("FPS", 1),
+    "Video Encoder": ("FPS", 1),
+    "Audio Encoder": ("Msamples/sec", 1e6),
+    "Video Player": ("FPS", 1),
+}
+
 METRIC_LABELS = {
     1: "Platform", 2: "Compiler", 3: "Operating System", 4: "Model ID",
     5: "Model", 7: "Processor", 12: "Cores", 13: "Threads",
@@ -66,7 +85,10 @@ def _workloads(node: dict) -> list[dict]:
                     continue
                 name = _pick(item, NAME_KEYS)
                 score = _pick(item, SCORE_KEYS, want_number=True)
-                rate = _pick(item, RATE_KEYS) or ""
+                rate = next((item[x] for x in item
+                             if _norm(x) == "rate" and _is_number(item[x])), "")
+                if rate == "":
+                    rate = _pick(item, RATE_KEYS) or ""
                 runtime = next((item[x] for x in item
                                 if _norm(x) == "runtime" and _is_number(item[x])), None)
                 threads = next((item[x] for x in item
@@ -234,6 +256,20 @@ def fmt(value: Any) -> str:
     return f"{value:,}" if isinstance(value, int) else str(value)
 
 
+def rate_string(name: str, rate) -> str:
+    """Browser-style description, e.g. ``456.5 MB/sec``."""
+    if isinstance(rate, str):
+        return rate
+    if not _is_number(rate):
+        return ""
+    unit, scale = WORKLOAD_UNITS.get(name, ("", 1))
+    if not unit:
+        return ""
+    value = rate / scale
+    text = f"{value:.2f}" if value < 10 else f"{value:.1f}"
+    return f"{text} {unit}"
+
+
 def to_terminal(report: Report) -> str:
     lines: list[str] = []
     for key in ("os", "model", "cpu", "cores", "memory", "version", "date"):
@@ -283,7 +319,8 @@ table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 td{padding:7px 0;border-bottom:1px solid var(--line);vertical-align:middle}
 td.name{width:38%}
 td.bar{width:42%;padding-right:16px}
-td.score{text-align:right;width:72px;font-weight:500;padding-right:12px}
+td.score{text-align:right;width:150px;font-weight:500;padding-right:16px;white-space:nowrap}
+td.score .desc{display:block;font-weight:400;font-size:12px;color:var(--muted);margin-top:2px}
 td.rate{text-align:right;width:150px;color:var(--muted);font-size:13px;white-space:nowrap}
 .b{height:8px;border-radius:4px;background:var(--bar);min-width:2px}
 .track{background:var(--bar-bg);border-radius:4px;overflow:hidden}
@@ -403,14 +440,14 @@ def to_html(report: Report, title: str) -> str:
         peak = max([w["score"] for w in workloads], default=0) or 1
         for w in workloads:
             width = max(2, round(100 * w["score"] / peak))
-            detail = w.get("rate") or ""
+            detail = rate_string(w["name"], w.get("rate"))
             if not detail and w.get("runtime"):
                 detail = f'{w["runtime"] * 1000:.0f} ms'
             parts.append(
                 f'<tr><td class="name">{esc(w["name"])}</td>'
-                f'<td class="bar"><div class="track"><div class="b" style="width:{width}%"></div></div></td>'
-                f'<td class="score">{fmt(w["score"])}</td>'
-                f'<td class="rate">{esc(detail)}</td></tr>'
+                f'<td class="score">{fmt(w["score"])}'
+                f'<br><span class="desc">{esc(detail)}</span></td>'
+                f'<td class="bar"><div class="track"><div class="b" style="width:{width}%"></div></div></td></tr>'
             )
         parts.append("</table>")
 
