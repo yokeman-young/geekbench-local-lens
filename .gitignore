@@ -1,7 +1,7 @@
 __pycache__/
 *.pyc
 .venv/
-results/
+/results/
 *.html
 !examples/**/*.html
 .DS_Store
