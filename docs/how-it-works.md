@@ -82,6 +82,23 @@ movk  x8, #0x2f2f, lsl #48 ; "//"
 We search for the `movk` word and flip the preceding `b.ne` to an unconditional
 branch. Same instruction on ELF/PE builds compiled from the same source.
 
+## Throughput strings
+
+The browser prints a description under each score (`456.5 MB/sec`). That string
+is built server-side and injected into the HTML as
+`<span class="description">`; there is no JSON API for it. The rule, recovered by
+comparing 24 rows of a public result against a local document:
+
+- `rate` in the document **is** `work / runtime` (Navigation: 24 / 1.067 = 22.48)
+- the unit is fixed per workload (16 of them) with only three scales:
+  `1e6` for MB/sec, Mpixels/sec, Msamples/sec; `1e3` for Klines/sec,
+  Ksamples/sec, Kpixels/sec; `1` for routes/sec, pages/sec, images/sec, FPS
+- formatting: two decimals below 10, one decimal otherwise
+  (`3.88`, `7.31`, `10.7`, `186.6`, `163.0`)
+
+Cross-check: `rate / scale` divided by the browser value matches the score ratio
+between the two machines to ~0.1% (File Compression 2.3332 vs 2.3323).
+
 ## Why local results are still correct
 
 Benchmarks run in-process. The upload happens *after* `Finished benchmark run`,
