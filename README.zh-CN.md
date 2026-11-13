@@ -112,6 +112,8 @@ gblens serve --results ./results --json    # 打印 {"listening":...} 后常驻
 - scheme 补丁依赖当前版本（7.1.0）的指令序列。新版本上 `gblens patch` 会明确失败
   （exit 2），而不是产出一个坏二进制。
 
+各种「不上传」路线的完整对比（黑洞、代理、Hook、响应格式逆向、Pro）见 [docs/approaches.md](docs/approaches.md)。
+
 ## 跨平台
 
 **Unix 优先**：macOS 已端到端验证；Linux 的 CLI 版本预期无需改代码即可适用

@@ -123,6 +123,8 @@ assert, and the failure modes worth retrying versus surfacing.
   (7.1.0). On a new release `gblens patch` fails loudly (exit 2) instead of
   producing a broken binary.
 
+See [docs/approaches.md](docs/approaches.md) for the full comparison of offline strategies (blackhole, proxy, hooks, response-schema reverse engineering, Pro).
+
 ## Cross-platform
 
 Unix-first: macOS is verified end to end, Linux CLI builds are expected to work
