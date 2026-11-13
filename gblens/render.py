@@ -36,6 +36,20 @@ def _walk(node: Any, path: tuple[str, ...] = ()):
             yield from _walk(value, path + (str(index),))
 
 
+WORKLOAD_UNITS_GPU = {
+    "Background Blur": ("images/sec", 1),
+    "Face Tracking": ("images/sec", 1),
+    "Super Resolution": ("Kimages/sec", 1e3),
+    "Horizon Detection": ("Gpixels/sec", 1e9),
+    "Photo Filter": ("pixels/sec", 1),
+    "Video Filter": ("Gpixels/sec", 1e9),
+    "RAW": ("Gpixels/sec", 1e9),
+    "Feature Matching": ("Mpixels/sec", 1e6),
+    "Path Tracer": ("Mpixels/sec", 1e6),
+    "Particle Physics": ("FPS", 1),
+    "Fluid Simulation": ("FPS", 1),
+}
+
 GPU_APIS = {1: "OpenCL", 2: "CUDA", 3: "Metal", 4: "Vulkan"}
 
 WORKLOAD_UNITS = {
@@ -266,8 +280,8 @@ def fmt(value: Any) -> str:
     return f"{value:,}" if isinstance(value, int) else str(value)
 
 
-def rate_string(name: str, rate) -> str:
-    """Browser-style description, e.g. ``456.5 MB/sec``."""
+def rate_string(name: str, rate, kind: str | None = None) -> str:
+    """Browser-style description, e.g. ``456.5 MB/sec``. GPU uses its own units."""
     if isinstance(rate, str):
         try:
             rate = float(rate)
@@ -275,7 +289,8 @@ def rate_string(name: str, rate) -> str:
             return rate
     if not _is_number(rate):
         return ""
-    unit, scale = WORKLOAD_UNITS.get(name, ("", 1))
+    table = WORKLOAD_UNITS_GPU if kind == "gpu" else WORKLOAD_UNITS
+    unit, scale = table.get(name, ("", 1))
     if not unit:
         return ""
     value = rate / scale
@@ -461,7 +476,7 @@ def to_html(report: Report, title: str) -> str:
         peak = max([w["score"] for w in workloads], default=0) or 1
         for w in workloads:
             width = max(2, round(100 * w["score"] / peak))
-            detail = rate_string(w["name"], w.get("rate"))
+            detail = rate_string(w["name"], w.get("rate"), g)
             if not detail and w.get("runtime"):
                 detail = f'{w["runtime"] * 1000:.0f} ms'
             parts.append(

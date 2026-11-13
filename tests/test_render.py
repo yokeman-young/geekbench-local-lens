@@ -70,6 +70,16 @@ class GpuRenderTests(unittest.TestCase):
         self.assertFalse(self.report.single)
         self.assertFalse(self.report.multi)
 
+    def test_gpu_rate_strings(self):
+        from gblens import render as r
+        w = {x["name"]: x for x in self.report.gpu["workloads"]}
+        self.assertEqual(r.rate_string("Background Blur", w["Background Blur"]["rate"], "gpu"),
+                         "117.2 images/sec")
+        self.assertEqual(r.rate_string("Horizon Detection", w["Horizon Detection"]["rate"], "gpu"),
+                         "1.67 Gpixels/sec")
+        self.assertEqual(r.rate_string("Super Resolution", w["Super Resolution"]["rate"], "gpu"),
+                         "150.7 Kimages/sec")
+
     def test_gpu_html(self):
         self.assertIn("Compute", self.html)
         self.assertIn("45,304", self.html)
