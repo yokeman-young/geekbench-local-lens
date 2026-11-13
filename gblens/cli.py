@@ -15,7 +15,7 @@ import os
 import subprocess
 import sys
 
-from . import patch, render, server
+from . import patch, render, scrub, server
 
 EXIT_OK = 0
 EXIT_FAIL = 1
@@ -110,6 +110,19 @@ def cmd_info(args: argparse.Namespace) -> int:
     return EXIT_OK
 
 
+def cmd_scrub(args: argparse.Namespace) -> int:
+    with open(args.file, encoding="utf-8") as handle:
+        original = json.load(handle)
+    cleaned = scrub.scrub(original, level=args.level)
+    out = args.out or os.path.splitext(args.file)[0] + f".scrubbed.json"
+    with open(out, "w", encoding="utf-8") as handle:
+        json.dump(cleaned, handle, ensure_ascii=False, indent=2)
+    payload = {"input": os.path.abspath(args.file), "output": os.path.abspath(out),
+               "level": args.level, **scrub.summarise(original, cleaned)}
+    _emit(payload, args.json, f"scrubbed -> {out}\n{json.dumps(payload, indent=2)}")
+    return EXIT_OK
+
+
 def cmd_doctor(args: argparse.Namespace) -> int:
     facts = {
         "python": sys.version.split()[0],
@@ -179,6 +192,12 @@ def build_parser() -> argparse.ArgumentParser:
     scanner = sub.add_parser("scan", parents=[common], help="inspect a binary: format, host/scheme match")
     scanner.add_argument("binary")
     scanner.set_defaults(func=cmd_scan)
+
+    scrubber = sub.add_parser("scrub", parents=[common], help="remove identifying fields from a result file")
+    scrubber.add_argument("file")
+    scrubber.add_argument("--level", choices=("light", "strict"), default="strict")
+    scrubber.add_argument("--out")
+    scrubber.set_defaults(func=cmd_scrub)
 
     info = sub.add_parser("info", parents=[common], help="bundle facts for an app")
     info.add_argument("--app", default="/Applications/Geekbench 7.app")

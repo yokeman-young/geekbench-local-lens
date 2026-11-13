@@ -1,7 +1,6 @@
 {
   "document_type": 0,
   "document_version": 7,
-  "branch": "parkdale-main-build",
   "options": {
     "iterations": 5,
     "cpu_workers": 0,
@@ -13,57 +12,9 @@
     "bits": 64
   },
   "processor_frequency": {
-    "frequencies": [
-      4455,
-      4454,
-      4454,
-      4453,
-      4456,
-      4452,
-      4452,
-      4456,
-      4456,
-      4454,
-      4455,
-      4452,
-      4454,
-      4454,
-      4450,
-      4451,
-      4453,
-      4457,
-      4428,
-      4339,
-      4366,
-      4291,
-      4405,
-      4450,
-      4455,
-      4455,
-      4452,
-      4455,
-      4456,
-      4455,
-      4455,
-      4458,
-      4458,
-      4462,
-      4461,
-      4459,
-      4454,
-      4458,
-      4454,
-      4452,
-      4442,
-      4438,
-      4453,
-      4457,
-      4453
-    ]
+    "frequencies": "<redacted>"
   },
-  "runtime": 214.58422695833332,
-  "clock": 0.0012351250000000001,
-  "version": "Geekbench 7.1.0",
+  "version": "Geekbench <version>",
   "metrics": [
     {
       "id": 1,
@@ -72,17 +23,17 @@
     },
     {
       "id": 2,
-      "value": "Clang 22.1.0 ",
+      "value": "Clang <version> ",
       "ivalue": 0
     },
     {
       "id": 3,
-      "value": "macOS 27.2.1 (Build 26B131)",
+      "value": "macOS <version> (<version>)",
       "ivalue": 0
     },
     {
       "id": 4,
-      "value": "Mac17,3",
+      "value": "<model-id>",
       "ivalue": 0
     },
     {
@@ -92,7 +43,7 @@
     },
     {
       "id": 6,
-      "value": "Mac17,3",
+      "value": "<model-id>",
       "ivalue": 0
     },
     {
@@ -127,7 +78,7 @@
     },
     {
       "id": 15,
-      "value": "4.46 GHz",
+      "value": "<version> GHz",
       "ivalue": 4457000000
     },
     {
@@ -142,7 +93,7 @@
     },
     {
       "id": 19,
-      "value": "64.0 KB",
+      "value": "<version> KB",
       "ivalue": 65536
     },
     {
@@ -152,7 +103,7 @@
     },
     {
       "id": 21,
-      "value": "6.00 MB",
+      "value": "<version> MB",
       "ivalue": 6291456
     },
     {
@@ -162,7 +113,7 @@
     },
     {
       "id": 23,
-      "value": "0.00 B",
+      "value": "<version> B",
       "ivalue": 0
     },
     {
@@ -172,7 +123,7 @@
     },
     {
       "id": 25,
-      "value": "0.00 B",
+      "value": "<version> B",
       "ivalue": 0
     },
     {
@@ -182,12 +133,12 @@
     },
     {
       "id": 27,
-      "value": "0.00 Hz",
+      "value": "<version> Hz",
       "ivalue": 0
     },
     {
       "id": 29,
-      "value": "24.0 GB",
+      "value": "<version> GB",
       "ivalue": 25769803776
     },
     {
@@ -605,7 +556,6 @@
           "factory_clock": 4.583119791666666,
           "factory_runtime": 0.02297375,
           "workload_clock": 4.606102083333333,
-          "runtime": 0.8844118125000001,
           "runtime_warmup": 0.8977846666666667,
           "runtimes": [
             0.8869026250000001,
@@ -631,7 +581,6 @@
           "factory_clock": 14.046695875000001,
           "factory_runtime": 0.153640875,
           "workload_clock": 14.200347791666667,
-          "runtime": 1.059635625,
           "runtime_warmup": 1.061355375,
           "runtimes": [
             1.0618032916666666,
@@ -657,7 +606,6 @@
           "factory_clock": 24.510587541666666,
           "factory_runtime": 1.543436875,
           "workload_clock": 26.0540285,
-          "runtime": 0.16641806250000002,
           "runtime_warmup": 0.19062829166666667,
           "runtimes": [
             0.166745375,
@@ -683,7 +631,6 @@
           "factory_clock": 31.929920333333335,
           "factory_runtime": 0.00361375,
           "workload_clock": 31.933567500000002,
-          "runtime": 0.38180226041666665,
           "runtime_warmup": 0.44302087500000004,
           "runtimes": [
             0.38934604166666664,
@@ -709,7 +656,6 @@
           "factory_clock": 38.908949500000006,
           "factory_runtime": 0.06900887500000001,
           "workload_clock": 38.977972375,
-          "runtime": 0.9990827916666667,
           "runtime_warmup": 1.0236604583333333,
           "runtimes": [
             1.0003282500000001,
@@ -735,7 +681,6 @@
           "factory_clock": 49.60273058333333,
           "factory_runtime": 0.010900375,
           "workload_clock": 49.61365729166667,
-          "runtime": 0.36032518750000003,
           "runtime_warmup": 0.41254916666666663,
           "runtimes": [
             0.359572875,
@@ -761,7 +706,6 @@
           "factory_clock": 56.47283233333333,
           "factory_runtime": 0.10175033333333333,
           "workload_clock": 56.574591041666665,
-          "runtime": 0.9002391666666667,
           "runtime_warmup": 0.8986268333333333,
           "runtimes": [
             0.8992247083333333,
@@ -787,7 +731,6 @@
           "factory_clock": 66.11790779166667,
           "factory_runtime": 0.043595125000000005,
           "workload_clock": 66.16152195833334,
-          "runtime": 1.111945416666667,
           "runtime_warmup": 1.1345268750000002,
           "runtimes": [
             1.111603375,
@@ -813,7 +756,6 @@
           "factory_clock": 76.7489855,
           "factory_runtime": 0.006492916666666667,
           "workload_clock": 76.75551470833334,
-          "runtime": 0.33083443749999997,
           "runtime_warmup": 0.4186455,
           "runtimes": [
             0.33266845833333336,
@@ -839,7 +781,6 @@
           "factory_clock": 83.50264091666666,
           "factory_runtime": 0.33985820833333336,
           "workload_clock": 83.84250729166666,
-          "runtime": 0.16583395833333334,
           "runtime_warmup": 0.19743354166666666,
           "runtimes": [
             0.16995041666666666,
@@ -865,7 +806,6 @@
           "factory_clock": 89.708432125,
           "factory_runtime": 0.18110762500000002,
           "workload_clock": 89.88954633333333,
-          "runtime": 0.9292921354166668,
           "runtime_warmup": 1.1576424166666666,
           "runtimes": [
             0.92792375,
@@ -891,7 +831,6 @@
           "factory_clock": 99.77058487500001,
           "factory_runtime": 0.043639791666666664,
           "workload_clock": 99.814236875,
-          "runtime": 1.0163565520833333,
           "runtime_warmup": 1.0379918750000001,
           "runtimes": [
             1.01138725,
@@ -917,7 +856,6 @@
           "factory_clock": 109.92276595833333,
           "factory_runtime": 0.0006304166666666667,
           "workload_clock": 109.923427375,
-          "runtime": 0.8435533958333333,
           "runtime_warmup": 0.8971974166666666,
           "runtimes": [
             0.8429061250000001,
@@ -943,7 +881,6 @@
           "factory_clock": 119.19994933333334,
           "factory_runtime": 0.03668433333333333,
           "workload_clock": 119.23664670833334,
-          "runtime": 0.5643302916666666,
           "runtime_warmup": 0.5870776666666666,
           "runtimes": [
             0.5624157916666667,
@@ -969,7 +906,6 @@
           "factory_clock": 127.090056625,
           "factory_runtime": 0.0724695,
           "workload_clock": 127.1625365,
-          "runtime": 0.42914358333333336,
           "runtime_warmup": 0.43180795833333335,
           "runtimes": [
             0.430409625,
@@ -995,7 +931,6 @@
           "factory_clock": 134.31606025,
           "factory_runtime": 0.11364675,
           "workload_clock": 134.42971425,
-          "runtime": 0.8909837395833334,
           "runtime_warmup": 0.9048624166666667,
           "runtimes": [
             0.888491,
@@ -1029,7 +964,6 @@
           "factory_clock": 143.90794425,
           "factory_runtime": 0.04331679166666667,
           "workload_clock": 143.95126954166668,
-          "runtime": 0.19296378125,
           "runtime_warmup": 0.20579816666666667,
           "runtimes": [
             0.19510658333333333,
@@ -1055,7 +989,6 @@
           "factory_clock": 149.93435104166667,
           "factory_runtime": 0.05617745833333333,
           "workload_clock": 149.99053379166668,
-          "runtime": 0.7754613333333333,
           "runtime_warmup": 0.7732237500000001,
           "runtimes": [
             0.7873900833333333,
@@ -1081,7 +1014,6 @@
           "factory_clock": 159.55460691666667,
           "factory_runtime": 0.009961416666666667,
           "workload_clock": 159.564588125,
-          "runtime": 2.067616875,
           "runtime_warmup": 2.0288478750000003,
           "runtimes": [
             2.024822125,
@@ -1107,7 +1039,6 @@
           "factory_clock": 174.87508533333332,
           "factory_runtime": 0.253388,
           "workload_clock": 175.12848304166667,
-          "runtime": 0.16817832291666668,
           "runtime_warmup": 0.17315120833333333,
           "runtimes": [
             0.16843295833333333,
@@ -1133,7 +1064,6 @@
           "factory_clock": 181.05270266666668,
           "factory_runtime": 0.03724145833333333,
           "workload_clock": 181.08995362500002,
-          "runtime": 0.8214728958333334,
           "runtime_warmup": 0.7572153333333334,
           "runtimes": [
             0.8573710833333333,
@@ -1159,7 +1089,6 @@
           "factory_clock": 190.138244875,
           "factory_runtime": 0.007757791666666666,
           "workload_clock": 190.14602791666667,
-          "runtime": 0.08637003125,
           "runtime_warmup": 0.12666379166666666,
           "runtimes": [
             0.09295937500000001,
@@ -1185,7 +1114,6 @@
           "factory_clock": 195.62333941666668,
           "factory_runtime": 0.34320216666666664,
           "workload_clock": 195.96655333333334,
-          "runtime": 0.14361560416666666,
           "runtime_warmup": 0.199636,
           "runtimes": [
             0.15053433333333333,
@@ -1211,7 +1139,6 @@
           "factory_clock": 201.75248654166666,
           "factory_runtime": 0.17728245833333334,
           "workload_clock": 201.92978008333333,
-          "runtime": 2.4288007916666667,
           "runtime_warmup": 2.5032957500000004,
           "runtimes": [
             2.3936235416666665,

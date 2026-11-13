@@ -53,8 +53,24 @@ class FixtureTests(unittest.TestCase):
     def test_fixture_is_scrubbed(self):
         with open(FIXTURE) as handle:
             doc = json.load(handle)
-        for key in ("system_uuid", "uuid", "checksum", "commit"):
+        for key in ("system_uuid", "uuid", "checksum", "commit", "date", "runtime", "clock"):
             self.assertNotIn(key, doc)
+        self.assertEqual(doc["processor_frequency"]["frequencies"], "<redacted>")
+        model = next(m for m in doc["metrics"] if m.get("id") == 4)
+        self.assertEqual(model["value"], "<model-id>")
+
+    def test_scrub_strips_versions_and_ids(self):
+        from gblens import scrub
+        raw = {"system_uuid": "X", "date": "2026-11-13",
+               "metrics": [{"id": 4, "value": "Mac17,3"}],
+               "processor_frequency": {"frequencies": [4455, 4454]},
+               "sections": [{"name": "Single-Core", "score": 1}]}
+        cleaned = scrub.scrub(raw, level="strict")
+        self.assertNotIn("system_uuid", cleaned)
+        self.assertNotIn("date", cleaned)
+        self.assertEqual(cleaned["metrics"][0]["value"], "<model-id>")
+        self.assertEqual(cleaned["processor_frequency"]["frequencies"], "<redacted>")
+        self.assertIn("sections", cleaned)
 
 
 if __name__ == "__main__":
