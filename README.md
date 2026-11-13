@@ -162,6 +162,12 @@ docs/               mechanism, pitfalls, agent recipes
 Contributions welcome — especially new result-schema shapes (Geekbench 5/6/7,
 AI, Compute) and Windows/Linux equivalents of the patch layer.
 
+## Acknowledgements
+
+Built inside **DeepSeek Harness** with the **DeepSeek Purge** plugin — the agent
+drove the machine, ran the benchmarks and verified each step against live logs.
+Details in [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md).
+
 ## Disclaimer
 
 Use it on machines you own or are authorised to test. The patch modifies a

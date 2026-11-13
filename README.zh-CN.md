@@ -148,6 +148,12 @@ docs/               原理、坑、agent 配方
 
 欢迎贡献：新的结果结构（Geekbench 5/6/7、AI、Compute）、Windows/Linux 的补丁实现。
 
+## 致谢
+
+本项目在 **DeepSeek Harness** 中完成，使用 **DeepSeek Purge** 插件。整个过程由
+agent 实际操作机器：跑分、读 `log show`、打补丁、验证每一步，而不是停留在
+"你可以试试"。详见 [ACKNOWLEDGEMENTS.md](ACKNOWLEDGEMENTS.md)。
+
 ## 声明
 
 只在你拥有或获授权测试的机器上使用。补丁修改的是商业软件的本地副本，用于本地互操作；
