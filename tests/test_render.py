@@ -57,6 +57,25 @@ class RenderTests(unittest.TestCase):
         self.assertEqual(report.multi["score"], 2222)
 
 
+GPU_FIXTURE = os.path.join(os.path.dirname(FIXTURE), "sample-macbook-air-m5-gpu.gb7.json")
+
+
+class GpuRenderTests(unittest.TestCase):
+    def setUp(self):
+        self.report, self.html = render.render_file(GPU_FIXTURE)
+
+    def test_compute_section(self):
+        self.assertEqual(self.report.gpu["score"], 45304)
+        self.assertEqual(len(self.report.gpu["workloads"]), 11)
+        self.assertFalse(self.report.single)
+        self.assertFalse(self.report.multi)
+
+    def test_gpu_html(self):
+        self.assertIn("Compute", self.html)
+        self.assertIn("45,304", self.html)
+        self.assertIn("Metal", self.html)
+
+
 class FixtureTests(unittest.TestCase):
     def test_fixture_is_scrubbed(self):
         with open(FIXTURE) as handle:

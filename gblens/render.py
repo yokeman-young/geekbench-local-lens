@@ -36,6 +36,8 @@ def _walk(node: Any, path: tuple[str, ...] = ()):
             yield from _walk(value, path + (str(index),))
 
 
+GPU_APIS = {1: "OpenCL", 2: "CUDA", 3: "Metal", 4: "Vulkan"}
+
 WORKLOAD_UNITS = {
     "File Compression": ("MB/sec", 1e6),
     "Navigation": ("routes/sec", 1),
@@ -108,13 +110,14 @@ def _workloads(node: dict) -> list[dict]:
 class Report:
     single: dict = field(default_factory=dict)
     multi: dict = field(default_factory=dict)
+    gpu: dict = field(default_factory=dict)
     info: dict = field(default_factory=dict)
     metrics: dict = field(default_factory=dict)
     details: dict = field(default_factory=dict)
 
     @property
     def empty(self) -> bool:
-        return not self.single and not self.multi
+        return not self.single and not self.multi and not self.gpu
 
 
 def _classify(name: str) -> str | None:
@@ -123,6 +126,8 @@ def _classify(name: str) -> str | None:
         return "single"
     if "multi" in key:
         return "multi"
+    if "gpu" in key or "compute" in key:
+        return "gpu"
     return None
 
 
@@ -175,6 +180,7 @@ def parse_document(root: dict) -> Report:
     report = Report()
     report.single = groups.get("single", {})
     report.multi = groups.get("multi", {})
+    report.gpu = groups.get("gpu", {})
     report.info = _sysinfo(root)
     report.metrics = collect_metrics(root)
     report.details = collect_details(root)
@@ -191,6 +197,9 @@ def collect_details(root: dict) -> dict:
     for key in ("version", "build", "date", "valid", "complete_benchmark", "branch"):
         if root.get(key) is not None:
             out["meta"][key] = root[key]
+    for key in ("gpu_api", "gpu_platform_name", "gpu_device_name"):
+        if root.get(key) not in (None, "", -1):
+            out[key] = root[key]
     frequency = root.get("processor_frequency")
     if isinstance(frequency, dict):
         out["frequencies"] = [f for f in frequency.get("frequencies", []) if _is_number(f)]
@@ -282,7 +291,7 @@ def to_terminal(report: Report) -> str:
     if lines:
         lines.append("")
 
-    groups = [g for g in ("single", "multi") if getattr(report, g)]
+    groups = [g for g in ("single", "multi", "gpu") if getattr(report, g)]
     if not groups:
         return "\n".join(lines + ["未识别到单核/多核分组，试试 --json 查看原始结构。"])
 
@@ -383,7 +392,7 @@ def _details_block(report: Report, groups: list) -> str:
                      f'<polyline points="{points}"/></svg>')
 
     timing = []
-    for kind in ("single", "multi"):
+    for kind in ("single", "multi", "gpu"):
         group = next((g for g in groups if g == kind), None)
         section = getattr(report, kind, None)
         if not section:
@@ -417,18 +426,26 @@ def to_html(report: Report, title: str) -> str:
     if meta:
         parts.append(f'<p class="sub">{meta}</p>')
 
-    groups = [g for g in ("single", "multi") if getattr(report, g)]
+    groups = [g for g in ("single", "multi", "gpu") if getattr(report, g)]
     if groups:
         parts.append('<div class="scores">')
         for g in groups:
-            label = "Single-Core" if g == "single" else "Multi-Core"
+            label = {"single": "Single-Core", "multi": "Multi-Core", "gpu": "Compute"}[g]
             parts.append(
                 f'<div class="card"><div class="label">{label} Score</div>'
                 f'<div class="value">{fmt(getattr(report, g)["score"])}</div></div>'
             )
         parts.append("</div>")
 
-    rows = list(report.metrics.items()) if report.metrics else [
+    metrics = dict(report.metrics)
+    gpu_api = report.details.get("gpu_api")
+    for key, label in (("gpu_platform_name", "GPU Platform"), ("gpu_device_name", "GPU Device")):
+        value = report.details.get(key)
+        if value not in (None, "", -1):
+            metrics[label] = value
+    if gpu_api not in (None, "", -1):
+        metrics["GPU API"] = GPU_APIS.get(gpu_api, str(gpu_api))
+    rows = list(metrics.items()) if metrics else [
         (LABELS[k], report.info[k]) for k in ("model", "cpu", "cores", "memory", "os", "version")
         if k in report.info]
     if rows:
