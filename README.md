@@ -105,7 +105,6 @@ gblens --json view results/x.gb7           # {"single":{...},"multi":{...}}
 gblens serve --results ./results --json    # prints {"listening":...} then serves
 ```
 
-A copy-pasteable task prompt lives in [docs/agent-run-prompt.md](docs/agent-run-prompt.md).
 See [AGENTS.md](AGENTS.md) for the recommended call sequence, invariants to
 assert, and the failure modes worth retrying versus surfacing.
 

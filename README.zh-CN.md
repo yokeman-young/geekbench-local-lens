@@ -99,7 +99,6 @@ gblens --json view results/x.gb7           # {"single":{...},"multi":{...}}
 gblens serve --results ./results --json    # 打印 {"listening":...} 后常驻
 ```
 
-可直接粘贴给 agent 的任务提示词：[docs/agent-run-prompt.md](docs/agent-run-prompt.md)。
 调用顺序、需要断言的不变量、哪些失败该重试、哪些该上报，见 [AGENTS.md](AGENTS.md)。
 
 ## 已知限制
