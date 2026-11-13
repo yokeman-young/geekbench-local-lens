@@ -36,6 +36,15 @@ def _walk(node: Any, path: tuple[str, ...] = ()):
             yield from _walk(value, path + (str(index),))
 
 
+METRIC_LABELS = {
+    1: "Platform", 2: "Compiler", 3: "Operating System", 4: "Model ID",
+    5: "Model", 7: "Processor", 12: "Cores", 13: "Threads",
+    14: "Processors", 15: "Base Frequency", 17: "L1 Instruction Cache",
+    19: "L1 Data Cache", 21: "L2 Cache", 23: "L3 Cache", 25: "L4 Cache",
+    29: "Memory", 34: "CPU", 45: "Clusters", 46: "Cluster 1",
+    51: "Cluster 2", 89: "Peak Clock", 20000: "Instruction Sets",
+}
+
 NAME_KEYS = ("name", "workload", "metric", "test", "title", "label")
 SCORE_KEYS = ("score", "value", "result")
 RATE_KEYS = ("rate", "ratestring", "throughput", "unit", "units")
@@ -58,8 +67,11 @@ def _workloads(node: dict) -> list[dict]:
                 name = _pick(item, NAME_KEYS)
                 score = _pick(item, SCORE_KEYS, want_number=True)
                 rate = _pick(item, RATE_KEYS) or ""
+                runtime = next((item[x] for x in item
+                                if _norm(x) == "runtime" and _is_number(item[x])), None)
                 if name:
-                    out.append({"name": name, "score": score, "rate": str(rate)})
+                    out.append({"name": name, "score": score, "rate": str(rate),
+                                "runtime": runtime})
             if out:
                 return out
     return []
@@ -70,6 +82,7 @@ class Report:
     single: dict = field(default_factory=dict)
     multi: dict = field(default_factory=dict)
     info: dict = field(default_factory=dict)
+    metrics: dict = field(default_factory=dict)
 
     @property
     def empty(self) -> bool:
@@ -135,7 +148,27 @@ def parse_document(root: dict) -> Report:
     report.single = groups.get("single", {})
     report.multi = groups.get("multi", {})
     report.info = _sysinfo(root)
+    report.metrics = collect_metrics(root)
     return report
+
+
+def collect_metrics(root: dict) -> dict:
+    """Map the document's numeric metric ids to readable labels."""
+    out: dict = {}
+    for _, node in _walk(root):
+        if not isinstance(node, dict):
+            continue
+        entries = node.get("metrics")
+        if not isinstance(entries, list):
+            continue
+        for item in entries:
+            if not isinstance(item, dict):
+                continue
+            label = METRIC_LABELS.get(item.get("id"))
+            value = item.get("value")
+            if label and isinstance(value, str) and value.strip():
+                out.setdefault(label, value.strip())
+    return out
 
 
 def _sysinfo(root: dict) -> dict:
@@ -264,8 +297,9 @@ def to_html(report: Report, title: str) -> str:
             )
         parts.append("</div>")
 
-    rows = [(LABELS[k], report.info[k]) for k in ("model", "cpu", "cores", "memory", "os", "version")
-            if k in report.info]
+    rows = list(report.metrics.items()) if report.metrics else [
+        (LABELS[k], report.info[k]) for k in ("model", "cpu", "cores", "memory", "os", "version")
+        if k in report.info]
     if rows:
         parts.append('<h2>System Information</h2><table class="sysinfo">')
         for key, value in rows:
@@ -279,11 +313,14 @@ def to_html(report: Report, title: str) -> str:
         peak = max([w["score"] for w in workloads], default=0) or 1
         for w in workloads:
             width = max(2, round(100 * w["score"] / peak))
+            detail = w.get("rate") or ""
+            if not detail and w.get("runtime"):
+                detail = f'{w["runtime"] * 1000:.0f} ms'
             parts.append(
                 f'<tr><td class="name">{esc(w["name"])}</td>'
                 f'<td class="bar"><div class="track"><div class="b" style="width:{width}%"></div></div></td>'
                 f'<td class="score">{fmt(w["score"])}</td>'
-                f'<td class="rate">{esc(w.get("rate") or "")}</td></tr>'
+                f'<td class="rate">{esc(detail)}</td></tr>'
             )
         parts.append("</table>")
 
