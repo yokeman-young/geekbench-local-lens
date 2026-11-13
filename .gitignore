@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+.venv/
+results/
+*.html
+!examples/**/*.html
+.DS_Store

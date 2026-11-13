@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geekbench-local-lens"
+version = "0.1.0"
+description = "Run Geekbench locally: fake upload endpoint, local result rendering, binary patching"
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+authors = [{ name = "geekbench-local-lens contributors" }]
+keywords = ["geekbench", "benchmark", "privacy", "offline", "macos", "reverse-engineering"]
+classifiers = [
+  "Environment :: Console",
+  "Operating System :: MacOS",
+  "Programming Language :: Python :: 3",
+  "Topic :: System :: Benchmark",
+]
+
+[project.scripts]
+gblens = "gblens.cli:main"
+
+[tool.setuptools]
+packages = ["gblens"]
