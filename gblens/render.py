@@ -96,7 +96,8 @@ def _workloads(node: dict) -> list[dict]:
                 runs = next((item[x] for x in item
                              if _norm(x) == "runtimes" and isinstance(item[x], list)), None)
                 if name:
-                    out.append({"name": name, "score": score, "rate": str(rate),
+                    out.append({"name": name, "score": score,
+                                "rate": rate if _is_number(rate) else str(rate),
                                 "runtime": runtime, "threads": threads, "runs": runs})
             if out:
                 return out
@@ -259,7 +260,10 @@ def fmt(value: Any) -> str:
 def rate_string(name: str, rate) -> str:
     """Browser-style description, e.g. ``456.5 MB/sec``."""
     if isinstance(rate, str):
-        return rate
+        try:
+            rate = float(rate)
+        except ValueError:
+            return rate
     if not _is_number(rate):
         return ""
     unit, scale = WORKLOAD_UNITS.get(name, ("", 1))
@@ -465,5 +469,8 @@ def render_file(path: str) -> tuple[Report, str]:
         raw = handle.read().lstrip()
     root = json.loads(raw)
     report = parse_document(root)
-    title = str(report.info.get("model") or report.info.get("cpu") or path.rsplit("/", 1)[-1])
+    title = str(report.metrics.get("Model")
+                or report.info.get("model")
+                or report.info.get("cpu")
+                or path.rsplit("/", 1)[-1])
     return report, to_html(report, title)

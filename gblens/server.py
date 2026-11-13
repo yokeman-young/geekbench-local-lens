@@ -54,7 +54,10 @@ class Store:
 
                 report = render.parse_document(document)
                 if not report.empty:
-                    title = str(report.info.get("model") or report.info.get("cpu") or stamp)
+                    title = str(report.metrics.get("Model")
+                                or report.info.get("model")
+                                or report.info.get("cpu")
+                                or stamp)
                     html_path = os.path.join(self.directory, f"{stamp}.html")
                     with open(html_path, "w", encoding="utf-8") as handle:
                         handle.write(render.to_html(report, title))
